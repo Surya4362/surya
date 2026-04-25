@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Surya · Digital Marketer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --cream: #FAF7F2; --beige: #F0EBE1; --sand: #E0D6C8;
+    --warm-mid: #C5B49A; --coffee: #8B6F47; --espresso: #5C4033;
+    --dark: #2C1F14; --text: #3A2D22; --text-muted: #7A6555;
+    --gold: #C9A84C; --gold-light: #E8D5A0; --white: #FDFAF6;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--cream); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; overflow-x: hidden; }
+
+  .cursor { width:12px; height:12px; background:var(--coffee); border-radius:50%; position:fixed; pointer-events:none; z-index:9999; transition:transform 0.15s ease; mix-blend-mode:multiply; }
+  .cursor-ring { width:40px; height:40px; border:1px solid var(--warm-mid); border-radius:50%; position:fixed; pointer-events:none; z-index:9998; transition:all 0.35s cubic-bezier(0.23,1,0.32,1); }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:1.5rem 4rem; transition:background 0.4s, backdrop-filter 0.4s; }
+  nav.scrolled { background:rgba(250,247,242,0.88); backdrop-filter:blur(16px); border-bottom:1px solid var(--sand); }
+  .nav-logo { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; letter-spacing:0.05em; color:var(--espresso); text-decoration:none; }
+  .nav-links { display:flex; gap:2.5rem; list-style:none; }
+  .nav-links a { font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); text-decoration:none; transition:color 0.25s; position:relative; }
+  .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--gold); transition:width 0.3s ease; }
+  .nav-links a:hover { color:var(--espresso); }
+  .nav-links a:hover::after { width:100%; }
+
+  #hero { min-height:100vh; display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:6rem 4rem 4rem; position:relative; overflow:hidden; }
+  .hero-grain { position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); opacity:0.4; pointer-events:none; }
+  .hero-bg-c { position:absolute; border-radius:50%; pointer-events:none; }
+  .hero-bg-c1 { width:600px; height:600px; background:radial-gradient(circle,rgba(201,168,76,0.08) 0%,transparent 70%); top:-100px; right:-100px; }
+  .hero-bg-c2 { width:400px; height:400px; background:radial-gradient(circle,rgba(139,111,71,0.06) 0%,transparent 70%); bottom:0; left:-80px; }
+
+  .hero-left { position:relative; z-index:2; }
+  .hero-tag { display:inline-flex; align-items:center; gap:8px; background:var(--beige); border:1px solid var(--sand); border-radius:100px; padding:6px 16px; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--coffee); margin-bottom:2.5rem; opacity:0; animation:fadeUp 0.8s 0.2s forwards; }
+  .hero-dot { width:6px; height:6px; background:var(--gold); border-radius:50%; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+  .hero-headline { font-family:'Cormorant Garamond',serif; font-size:clamp(3.2rem,5.5vw,5.5rem); font-weight:300; line-height:1.07; color:var(--dark); margin-bottom:2rem; opacity:0; animation:fadeUp 0.9s 0.35s forwards; }
+  .hero-headline em { font-style:italic; color:var(--coffee); }
+  .hero-headline strong { font-weight:600; display:block; }
+  .hero-sub { font-size:1rem; line-height:1.78; color:var(--text-muted); max-width:480px; margin-bottom:3rem; opacity:0; animation:fadeUp 0.9s 0.5s forwards; }
+  .hero-ctas { display:flex; gap:1.25rem; align-items:center; opacity:0; animation:fadeUp 0.9s 0.65s forwards; }
+  .btn-primary { background:var(--espresso); color:var(--cream); padding:14px 32px; border-radius:100px; font-size:0.82rem; letter-spacing:0.08em; text-decoration:none; text-transform:uppercase; transition:all 0.3s; border:1px solid var(--espresso); }
+  .btn-primary:hover { background:var(--dark); transform:translateY(-2px); box-shadow:0 12px 30px rgba(92,64,51,0.25); }
+  .btn-ghost { color:var(--espresso); font-size:0.82rem; letter-spacing:0.08em; text-decoration:none; text-transform:uppercase; display:flex; align-items:center; gap:8px; transition:gap 0.3s; }
+  .btn-ghost:hover { gap:14px; }
+
+  .hero-right { display:flex; justify-content:center; align-items:center; position:relative; z-index:2; opacity:0; animation:fadeIn 1.2s 0.7s forwards; }
+  .dash-wrap { position:relative; }
+  .hero-dashboard { width:360px; background:var(--white); border:1px solid var(--sand); border-radius:24px; padding:2rem; box-shadow:0 24px 60px rgba(92,64,51,0.1); animation:floatD 7s ease-in-out infinite; }
+  @keyframes floatD { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+  .accent-chip { position:absolute; background:var(--white); border:1px solid var(--sand); border-radius:14px; padding:11px 18px; font-size:0.78rem; color:var(--espresso); white-space:nowrap; box-shadow:0 8px 24px rgba(92,64,51,0.07); }
+  .ac1 { top:-18px; right:-30px; animation:floatA 5s ease-in-out 0.5s infinite; }
+  .ac2 { bottom:-18px; left:-24px; animation:floatB 6s ease-in-out 1s infinite; }
+  @keyframes floatA { 0%,100%{transform:translateY(0) rotate(2deg)} 50%{transform:translateY(-10px) rotate(2deg)} }
+  @keyframes floatB { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-10px) rotate(-2deg)} }
+  .dash-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+  .dash-t { font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); }
+  .dash-live { display:flex; align-items:center; gap:6px; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); }
+  .dash-live-dot { width:6px; height:6px; background:var(--gold); border-radius:50%; animation:pulse 2s infinite; }
+  .dash-metrics { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:1.5rem; }
+  .dash-m { background:var(--beige); border-radius:12px; padding:14px; }
+  .dash-mval { font-family:'Cormorant Garamond',serif; font-size:1.9rem; font-weight:600; color:var(--espresso); line-height:1; }
+  .dash-mlabel { font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin-top:4px; }
+  .dash-mchange { font-size:0.7rem; color:#5a8a5a; margin-top:2px; }
+  .dash-chs { border-top:1px solid var(--sand); padding-top:1.25rem; }
+  .dash-ch { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .dash-chicon { width:28px; height:28px; border-radius:7px; background:var(--beige); border:1px solid var(--sand); display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
+  .dash-chname { font-size:0.8rem; color:var(--text); flex:1; }
+  .dash-chbar { flex:2; height:5px; background:var(--sand); border-radius:100px; overflow:hidden; }
+  .dash-chfill { height:100%; background:linear-gradient(90deg,var(--coffee),var(--gold)); border-radius:100px; animation:barFill 2s 1s ease forwards; width:0%; }
+  .dash-chval { font-size:0.75rem; font-weight:500; color:var(--espresso); min-width:32px; text-align:right; }
+  @keyframes barFill { to { width:var(--w); } }
+
+  section { padding:7rem 4rem; position:relative; }
+  .sec-label { display:flex; align-items:center; gap:12px; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:1.25rem; }
+  .sec-label::before { content:''; width:40px; height:1px; background:var(--warm-mid); display:block; }
+  .sec-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.5rem,4vw,4rem); font-weight:300; line-height:1.1; color:var(--dark); margin-bottom:1.5rem; }
+  .sec-title em { font-style:italic; color:var(--coffee); }
+
+  #about { background:var(--beige); }
+  .about-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:5rem; align-items:center; max-width:1100px; margin:0 auto; }
+  .about-img-wrap { position:relative; height:480px; }
+  .about-main { position:absolute; bottom:0; left:0; width:82%; height:400px; background:var(--sand); border-radius:20px; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:7rem; font-weight:300; color:var(--warm-mid); }
+  .about-acc { position:absolute; top:0; right:0; width:150px; height:180px; background:var(--espresso); border-radius:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
+  .about-acc span { font-family:'Cormorant Garamond',serif; font-size:2.8rem; font-weight:300; color:var(--gold-light); line-height:1; }
+  .about-acc small { font-size:0.62rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--warm-mid); text-align:center; padding:0 10px; }
+  .about-text p { font-size:1.02rem; line-height:1.82; color:var(--text-muted); margin-bottom:1.4rem; }
+  .about-text p strong { color:var(--espresso); font-weight:500; }
+  .skills-tags { display:flex; flex-wrap:wrap; gap:10px; margin-top:2rem; }
+  .skill-tag { background:var(--white); border:1px solid var(--sand); border-radius:100px; padding:7px 18px; font-size:0.78rem; color:var(--espresso); letter-spacing:0.04em; transition:all 0.25s; cursor:default; }
+  .skill-tag:hover { background:var(--espresso); color:var(--cream); border-color:var(--espresso); }
+
+  #expertise { background:var(--cream); }
+  .exp-inner { max-width:1100px; margin:0 auto; }
+  .exp-hdr { display:grid; grid-template-columns:1fr 1fr; align-items:end; gap:2rem; margin-bottom:4rem; }
+  .exp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .exp-card { background:var(--white); border:1px solid var(--sand); border-radius:20px; padding:2.5rem 2rem; transition:all 0.4s cubic-bezier(0.23,1,0.32,1); position:relative; overflow:hidden; }
+  .exp-card::before { content:''; position:absolute; inset:0; background:var(--espresso); transform:translateY(100%); transition:transform 0.45s cubic-bezier(0.23,1,0.32,1); border-radius:20px; }
+  .exp-card:hover { transform:translateY(-6px); border-color:var(--espresso); }
+  .exp-card:hover::before { transform:translateY(0); }
+  .exp-card:hover .ec-icon, .exp-card:hover .ec-name, .exp-card:hover .ec-desc { color:var(--cream) !important; }
+  .exp-card:hover .ec-tag { color:rgba(250,247,242,0.7) !important; border-color:rgba(255,255,255,0.15) !important; }
+  .ec-icon { font-size:1.8rem; margin-bottom:1.5rem; display:block; position:relative; z-index:1; }
+  .ec-name { font-family:'Cormorant Garamond',serif; font-size:1.45rem; font-weight:400; color:var(--dark); margin-bottom:0.75rem; position:relative; z-index:1; transition:color 0.3s; }
+  .ec-desc { font-size:0.87rem; line-height:1.7; color:var(--text-muted); position:relative; z-index:1; transition:color 0.3s; margin-bottom:1.25rem; }
+  .ec-tags { display:flex; flex-wrap:wrap; gap:6px; position:relative; z-index:1; }
+  .ec-tag { font-size:0.66rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--coffee); border:1px solid var(--sand); border-radius:100px; padding:4px 10px; transition:all 0.3s; }
+
+  #case-studies { background:var(--dark); }
+  #case-studies .sec-label { color:var(--warm-mid); }
+  #case-studies .sec-label::before { background:var(--warm-mid); }
+  #case-studies .sec-title { color:var(--cream); }
+  .cases-inner { max-width:1100px; margin:0 auto; }
+  .cases-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+  .case-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:3rem; transition:all 0.4s ease; }
+  .case-card:hover { background:rgba(255,255,255,0.07); border-color:rgba(201,168,76,0.4); transform:translateY(-4px); }
+  .case-tag { display:inline-block; background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3); color:var(--gold); font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; padding:5px 14px; border-radius:100px; margin-bottom:1.5rem; }
+  .case-title { font-family:'Cormorant Garamond',serif; font-size:1.7rem; font-weight:300; color:var(--cream); line-height:1.2; margin-bottom:1.5rem; }
+  .case-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; }
+  .cs-num { font-family:'Cormorant Garamond',serif; font-size:2.1rem; font-weight:600; color:var(--gold); line-height:1; }
+  .cs-lbl { font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--warm-mid); margin-top:4px; }
+  .case-div { height:1px; background:rgba(255,255,255,0.08); margin-bottom:1.75rem; }
+  .case-steps { list-style:none; }
+  .case-steps li { display:flex; align-items:flex-start; gap:12px; font-size:0.87rem; line-height:1.6; color:rgba(250,247,242,0.65); margin-bottom:10px; }
+  .case-steps li::before { content:'→'; color:var(--gold); font-size:0.8rem; margin-top:2px; flex-shrink:0; }
+
+  #process { background:var(--beige); }
+  .proc-inner { max-width:1100px; margin:0 auto; }
+  .proc-hdr { display:grid; grid-template-columns:1fr 1fr; align-items:end; gap:3rem; margin-bottom:3.5rem; }
+  .flow-steps { display:flex; }
+  .flow-step { flex:1; background:var(--white); border:1px solid var(--sand); padding:2rem 1.5rem; position:relative; transition:all 0.3s; }
+  .flow-step:first-child { border-radius:20px 0 0 20px; }
+  .flow-step:last-child { border-radius:0 20px 20px 0; }
+  .flow-step:not(:first-child) { border-left:none; }
+  .flow-step:hover { background:var(--espresso); z-index:1; }
+  .flow-step:hover .fn, .flow-step:hover .ft, .flow-step:hover .fc { color:var(--cream) !important; }
+  .fn { font-family:'Cormorant Garamond',serif; font-size:2.8rem; font-weight:300; color:var(--sand); line-height:1; margin-bottom:0.5rem; transition:color 0.3s; }
+  .ft { font-size:0.78rem; font-weight:500; color:var(--espresso); letter-spacing:0.04em; margin-bottom:0.4rem; transition:color 0.3s; }
+  .fc { font-size:0.67rem; color:var(--warm-mid); font-family:monospace; transition:color 0.3s; }
+
+  #tools { background:var(--cream); }
+  .stack-inner { max-width:1100px; margin:0 auto; }
+  .stack-cats { display:grid; grid-template-columns:repeat(4,1fr); gap:2rem; margin-top:3.5rem; }
+  .scat-title { font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--warm-mid); margin-bottom:1.25rem; padding-bottom:10px; border-bottom:1px solid var(--sand); }
+  .stool { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; margin-bottom:6px; transition:all 0.25s; cursor:default; }
+  .stool:hover { background:var(--beige); }
+  .stool-icon { width:28px; height:28px; background:var(--beige); border:1px solid var(--sand); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+  .stool-name { font-size:0.85rem; color:var(--text); }
+
+  #contact { background:var(--espresso); }
+  .contact-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:start; }
+  #contact .sec-label { color:var(--warm-mid); }
+  #contact .sec-label::before { background:var(--warm-mid); }
+  #contact .sec-title { color:var(--cream); }
+  .contact-text { font-size:1rem; line-height:1.8; color:rgba(250,247,242,0.65); margin-bottom:2.5rem; }
+  .contact-links { display:flex; flex-direction:column; gap:1rem; }
+  .contact-link { display:flex; align-items:center; gap:14px; color:var(--cream); text-decoration:none; font-size:0.92rem; padding:14px 20px; border:1px solid rgba(255,255,255,0.12); border-radius:12px; transition:all 0.3s; }
+  .contact-link:hover { background:rgba(255,255,255,0.06); border-color:rgba(201,168,76,0.5); transform:translateX(6px); }
+  .cl-icon { width:36px; height:36px; background:rgba(201,168,76,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .cform { display:flex; flex-direction:column; gap:1.25rem; }
+  .fg { display:flex; flex-direction:column; gap:6px; }
+  .flabel { font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--warm-mid); }
+  .finput, .ftextarea { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:14px 18px; color:var(--cream); font-family:'DM Sans',sans-serif; font-size:0.92rem; outline:none; transition:border-color 0.25s; width:100%; }
+  .finput::placeholder, .ftextarea::placeholder { color:rgba(250,247,242,0.3); }
+  .finput:focus, .ftextarea:focus { border-color:rgba(201,168,76,0.5); }
+  .ftextarea { resize:vertical; min-height:120px; }
+  .fsubmit { background:var(--gold); color:var(--dark); border:none; border-radius:100px; padding:15px 36px; font-family:'DM Sans',sans-serif; font-size:0.82rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.3s; align-self:flex-start; }
+  .fsubmit:hover { background:var(--gold-light); transform:translateY(-2px); box-shadow:0 10px 30px rgba(201,168,76,0.3); }
+
+  footer { background:var(--dark); padding:2.5rem 4rem; display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); }
+  footer p { font-size:0.78rem; color:rgba(250,247,242,0.3); letter-spacing:0.06em; }
+  .flogo { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--cream); opacity:0.5; }
+  .flinks { display:flex; gap:1.5rem; }
+  .flinks a { font-size:0.75rem; color:rgba(250,247,242,0.3); text-decoration:none; letter-spacing:0.1em; text-transform:uppercase; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.8s cubic-bezier(0.23,1,0.32,1), transform 0.8s cubic-bezier(0.23,1,0.32,1); }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:var(--beige); }
+  ::-webkit-scrollbar-thumb { background:var(--warm-mid); border-radius:100px; }
+
+  @media(max-width:900px){
+    nav { padding:1.25rem 2rem; }
+    .nav-links { display:none; }
+    #hero { grid-template-columns:1fr; padding:8rem 2rem 4rem; }
+    .hero-right { display:none; }
+    section { padding:5rem 2rem; }
+    .about-grid, .exp-hdr, .proc-hdr, .cases-grid, .contact-inner { grid-template-columns:1fr; }
+    .exp-grid, .stack-cats { grid-template-columns:1fr 1fr; }
+    .flow-steps { flex-direction:column; }
+    .flow-step:first-child { border-radius:20px 20px 0 0; }
+    .flow-step:last-child { border-radius:0 0 20px 20px; }
+    .flow-step:not(:first-child) { border-left:1px solid var(--sand); border-top:none; }
+    footer { flex-direction:column; gap:1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cring"></div>
+
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">Surya.</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#expertise">Expertise</a></li>
+    <li><a href="#case-studies">Work</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#tools">Stack</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grain"></div>
+  <div class="hero-bg-c hero-bg-c1"></div>
+  <div class="hero-bg-c hero-bg-c2"></div>
+  <div class="hero-left">
+    <div class="hero-tag"><div class="hero-dot"></div>Open to opportunities</div>
+    <h1 class="hero-headline">
+      Data-Driven<br>
+      <em>Digital Marketer</em><br>
+      <strong>Who Executes.</strong>
+    </h1>
+    <p class="hero-sub">I plan, run, and optimise paid media campaigns across Meta and Google — backed by analytics, structured testing, and a sharp eye for what the numbers are actually saying.</p>
+    <div class="hero-ctas">
+      <a href="#case-studies" class="btn-primary">View My Work</a>
+      <a href="#contact" class="btn-ghost">Get In Touch →</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="dash-wrap">
+      <div class="accent-chip ac1">📊 ROAS up 2.4× this month</div>
+      <div class="accent-chip ac2">⚡ 0 manual steps remaining</div>
+      <div class="hero-dashboard">
+        <div class="dash-hdr">
+          <div class="dash-t">Campaign Overview</div>
+          <div class="dash-live"><div class="dash-live-dot"></div>Live</div>
+        </div>
+        <div class="dash-metrics">
+          <div class="dash-m"><div class="dash-mval">32+</div><div class="dash-mlabel">Conversions</div><div class="dash-mchange">↑ Month 1</div></div>
+          <div class="dash-m"><div class="dash-mval">~40%</div><div class="dash-mlabel">CTR / Accept</div><div class="dash-mchange">↑ Above avg</div></div>
+          <div class="dash-m"><div class="dash-mval">3×</div><div class="dash-mlabel">Reach Scale</div><div class="dash-mchange">↑ vs manual</div></div>
+          <div class="dash-m"><div class="dash-mval">0h</div><div class="dash-mlabel">Manual Work</div><div class="dash-mchange">Automated</div></div>
+        </div>
+        <div class="dash-chs">
+          <div class="dash-ch"><div class="dash-chicon">📣</div><div class="dash-chname">Meta Ads</div><div class="dash-chbar"><div class="dash-chfill" style="--w:78%"></div></div><div class="dash-chval">78%</div></div>
+          <div class="dash-ch"><div class="dash-chicon">🔍</div><div class="dash-chname">Google Ads</div><div class="dash-chbar"><div class="dash-chfill" style="--w:62%;animation-delay:1.2s"></div></div><div class="dash-chval">62%</div></div>
+          <div class="dash-ch"><div class="dash-chicon">📧</div><div class="dash-chname">Email / SEO</div><div class="dash-chbar"><div class="dash-chfill" style="--w:45%;animation-delay:1.5s"></div></div><div class="dash-chval">45%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-img-wrap reveal">
+      <div class="about-main">S.</div>
+      <div class="about-acc"><span>6+</span><small>Channels Worked</small></div>
+    </div>
+    <div class="about-text reveal" style="transition-delay:0.15s">
+      <div class="sec-label">About Me</div>
+      <h2 class="sec-title">Analytical mindset.<br><em>Hands-on execution.</em></h2>
+      <p>I'm a <strong>digital marketer</strong> focused on paid media — primarily Meta Ads and Google Ads — with solid experience across SEO, email marketing, and automation.</p>
+      <p>My approach is always <strong>data first</strong>. I don't just launch campaigns and hope — I track every key metric, read what the data is telling me, and iterate quickly. Decisions are grounded in numbers, not guesswork.</p>
+      <p>I also use <strong>automation tools like n8n, Make, and Zapier</strong> to eliminate repetitive manual work — keeping campaigns running efficiently and making sure nothing falls through the cracks.</p>
+      <div class="skills-tags">
+        <span class="skill-tag">Meta Ads</span>
+        <span class="skill-tag">Google Ads</span>
+        <span class="skill-tag">Campaign Strategy</span>
+        <span class="skill-tag">A/B Testing</span>
+        <span class="skill-tag">SEO</span>
+        <span class="skill-tag">Email Marketing</span>
+        <span class="skill-tag">Automation</span>
+        <span class="skill-tag">Analytics</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERTISE -->
+<section id="expertise">
+  <div class="exp-inner">
+    <div class="exp-hdr">
+      <div class="reveal">
+        <div class="sec-label">What I Do</div>
+        <h2 class="sec-title">Core areas of<br><em>expertise.</em></h2>
+      </div>
+      <p class="reveal" style="color:var(--text-muted);line-height:1.8;font-size:1rem;transition-delay:0.15s">Across paid media, organic growth, and automation — structured thinking and consistent execution on every channel.</p>
+    </div>
+    <div class="exp-grid">
+      <div class="exp-card reveal">
+        <span class="ec-icon">📣</span>
+        <div class="ec-name">Meta Ads</div>
+        <p class="ec-desc">Full-funnel campaign management — audience research, creative strategy, Pixel setup, A/B testing, and continuous optimisation toward target CPA.</p>
+        <div class="ec-tags"><span class="ec-tag">Audience Targeting</span><span class="ec-tag">A/B Testing</span><span class="ec-tag">Pixel Setup</span></div>
+      </div>
+      <div class="exp-card reveal" style="transition-delay:0.1s">
+        <span class="ec-icon">🔍</span>
+        <div class="ec-name">Google Ads</div>
+        <p class="ec-desc">Search and display campaign setup — structured ad groups, keyword and negative keyword strategy, conversion tracking, and bid optimisation.</p>
+        <div class="ec-tags"><span class="ec-tag">Search Campaigns</span><span class="ec-tag">Keyword Strategy</span><span class="ec-tag">Bidding</span></div>
+      </div>
+      <div class="exp-card reveal" style="transition-delay:0.2s">
+        <span class="ec-icon">📊</span>
+        <div class="ec-name">Analytics & Reporting</div>
+        <p class="ec-desc">Reading GA4, Ads Manager dashboards, and custom reports to surface what's working, what needs attention, and what the next move should be.</p>
+        <div class="ec-tags"><span class="ec-tag">GA4</span><span class="ec-tag">Dashboards</span><span class="ec-tag">Actionable Insights</span></div>
+      </div>
+      <div class="exp-card reveal" style="transition-delay:0.05s">
+        <span class="ec-icon">🌐</span>
+        <div class="ec-name">SEO & Content Strategy</div>
+        <p class="ec-desc">Keyword research, on-page optimisation, and intent-mapped content to grow organic traffic and attract the right audience over time.</p>
+        <div class="ec-tags"><span class="ec-tag">Keyword Research</span><span class="ec-tag">On-Page SEO</span><span class="ec-tag">Content</span></div>
+      </div>
+      <div class="exp-card reveal" style="transition-delay:0.15s">
+        <span class="ec-icon">📧</span>
+        <div class="ec-name">Email Marketing</div>
+        <p class="ec-desc">Brevo-based campaigns and drip sequences with segmentation, automation, and A/B testing — nurturing audiences from cold to conversion.</p>
+        <div class="ec-tags"><span class="ec-tag">Sequences</span><span class="ec-tag">Segmentation</span><span class="ec-tag">Brevo</span></div>
+      </div>
+      <div class="exp-card reveal" style="transition-delay:0.25s">
+        <span class="ec-icon">⚙️</span>
+        <div class="ec-name">Marketing Automation</div>
+        <p class="ec-desc">Workflow design in n8n, Make, and Zapier — connecting tools, routing data, and removing manual steps so campaigns scale without added effort.</p>
+        <div class="ec-tags"><span class="ec-tag">n8n</span><span class="ec-tag">Make</span><span class="ec-tag">Zapier</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section id="case-studies">
+  <div class="cases-inner">
+    <div style="margin-bottom:3.5rem">
+      <div class="sec-label reveal">Work</div>
+      <h2 class="sec-title reveal">Campaigns I've<br><em>planned and run.</em></h2>
+    </div>
+    <div class="cases-grid">
+      <div class="case-card reveal">
+        <div class="case-tag">Meta Ads · Campaign Management</div>
+        <h3 class="case-title">Meta Ads for a Service Business — 32 Conversions in 30 Days</h3>
+        <div class="case-stats">
+          <div><div class="cs-num">32+</div><div class="cs-lbl">Conversions</div></div>
+          <div><div class="cs-num">30</div><div class="cs-lbl">Days</div></div>
+          <div><div class="cs-num">2</div><div class="cs-lbl">Ad Sets Tested</div></div>
+        </div>
+        <div class="case-div"></div>
+        <ul class="case-steps">
+          <li>Set up Meta Pixel and configured conversion event tracking from scratch</li>
+          <li>Built interest-based and behavioural audiences for cold targeting</li>
+          <li>Created and tested 3 ad creatives — identified the best-performing hook format</li>
+          <li>Used Instant Forms to reduce drop-off; ran weekly optimisation reviews</li>
+          <li>Identified top audience segment for future budget scaling</li>
+        </ul>
+      </div>
+      <div class="case-card reveal" style="transition-delay:0.15s">
+        <div class="case-tag">Outreach Campaign · Automation</div>
+        <h3 class="case-title">Automated Outreach Campaign — 3× Volume, ~40% Acceptance Rate</h3>
+        <div class="case-stats">
+          <div><div class="cs-num">3×</div><div class="cs-lbl">Volume</div></div>
+          <div><div class="cs-num">~40%</div><div class="cs-lbl">Accept Rate</div></div>
+          <div><div class="cs-num">0h</div><div class="cs-lbl">Manual Time</div></div>
+        </div>
+        <div class="case-div"></div>
+        <ul class="case-steps">
+          <li>Defined target audience filters by role, industry, and company size</li>
+          <li>Built a multi-step sequence: Connect → 24h delay → Message 1 → 48h → Message 2</li>
+          <li>A/B tested two message variants — curiosity hook outperformed value-first</li>
+          <li>Tracked all responses in Google Sheets; enriched data via Konnector.ai</li>
+          <li>Eliminated all manual sending — zero daily input required to run</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="proc-inner">
+    <div class="proc-hdr">
+      <div class="reveal">
+        <div class="sec-label">How I Work</div>
+        <h2 class="sec-title">My campaign<br><em>process.</em></h2>
+      </div>
+      <p class="reveal" style="color:var(--text-muted);line-height:1.8;font-size:1rem;transition-delay:0.15s">Every campaign follows the same structured loop — from research and setup through to analysis and the next iteration. No guesswork.</p>
+    </div>
+    <div class="flow-steps reveal">
+      <div class="flow-step"><div class="fn">01</div><div class="ft">Research & Strategy</div><div class="fc">Audience · Goals · KPIs</div></div>
+      <div class="flow-step"><div class="fn">02</div><div class="ft">Setup & Tracking</div><div class="fc">Pixel · Tags · Events</div></div>
+      <div class="flow-step"><div class="fn">03</div><div class="ft">Launch & Test</div><div class="fc">A/B · Creatives · Copy</div></div>
+      <div class="flow-step"><div class="fn">04</div><div class="ft">Analyse & Optimise</div><div class="fc">Data → Decisions</div></div>
+      <div class="flow-step"><div class="fn">05</div><div class="ft">Scale & Report</div><div class="fc">Budget · Insights · Next</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section id="tools">
+  <div class="stack-inner">
+    <div class="sec-label reveal">Tech Stack</div>
+    <h2 class="sec-title reveal">Tools I actively<br><em>work with.</em></h2>
+    <div class="stack-cats">
+      <div class="reveal">
+        <div class="scat-title">Paid Ads</div>
+        <div class="stool"><div class="stool-icon">📣</div><span class="stool-name">Meta Ads Manager</span></div>
+        <div class="stool"><div class="stool-icon">🔍</div><span class="stool-name">Google Ads</span></div>
+        <div class="stool"><div class="stool-icon">📊</div><span class="stool-name">Meta Business Suite</span></div>
+        <div class="stool"><div class="stool-icon">🎨</div><span class="stool-name">Canva</span></div>
+      </div>
+      <div class="reveal" style="transition-delay:0.1s">
+        <div class="scat-title">Analytics & SEO</div>
+        <div class="stool"><div class="stool-icon">📈</div><span class="stool-name">Google Analytics 4</span></div>
+        <div class="stool"><div class="stool-icon">🔑</div><span class="stool-name">Search Console</span></div>
+        <div class="stool"><div class="stool-icon">🌐</div><span class="stool-name">Semrush / Ubersuggest</span></div>
+        <div class="stool"><div class="stool-icon">🗂️</div><span class="stool-name">Google Sheets</span></div>
+      </div>
+      <div class="reveal" style="transition-delay:0.2s">
+        <div class="scat-title">Outreach & Email</div>
+        <div class="stool"><div class="stool-icon">💼</div><span class="stool-name">Waalaxy</span></div>
+        <div class="stool"><div class="stool-icon">🔗</div><span class="stool-name">Konnector.ai</span></div>
+        <div class="stool"><div class="stool-icon">📬</div><span class="stool-name">Brevo</span></div>
+        <div class="stool"><div class="stool-icon">🔎</div><span class="stool-name">LinkedIn Sales Nav</span></div>
+      </div>
+      <div class="reveal" style="transition-delay:0.3s">
+        <div class="scat-title">Automation</div>
+        <div class="stool"><div class="stool-icon">⚙️</div><span class="stool-name">n8n</span></div>
+        <div class="stool"><div class="stool-icon">🔁</div><span class="stool-name">Make (Integromat)</span></div>
+        <div class="stool"><div class="stool-icon">⚡</div><span class="stool-name">Zapier</span></div>
+        <div class="stool"><div class="stool-icon">🧩</div><span class="stool-name">Activepieces</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div>
+      <div class="sec-label reveal">Get In Touch</div>
+      <h2 class="sec-title reveal">Let's talk<br><em>opportunities.</em></h2>
+      <p class="contact-text reveal">I'm actively looking for roles in paid media and digital marketing. If you'd like to discuss a position or just have a conversation, I'd love to connect.</p>
+      <div class="contact-links reveal">
+        <a href="mailto:hello@yourdomain.com" class="contact-link"><div class="cl-icon">📧</div>hello@yourdomain.com</a>
+        <a href="https://linkedin.com/in/yourprofile" class="contact-link"><div class="cl-icon">💼</div>LinkedIn Profile</a>
+        <a href="https://wa.me/91XXXXXXXXXX" class="contact-link"><div class="cl-icon">💬</div>WhatsApp</a>
+      </div>
+    </div>
+    <div class="reveal" style="transition-delay:0.2s">
+      <div class="cform">
+        <div class="fg"><label class="flabel">Your Name</label><input type="text" class="finput" placeholder="Alex Johnson" /></div>
+        <div class="fg"><label class="flabel">Email Address</label><input type="email" class="finput" placeholder="alex@company.com" /></div>
+        <div class="fg"><label class="flabel">Message</label><textarea class="ftextarea" placeholder="Tell me about the opportunity..."></textarea></div>
+        <button class="fsubmit">Send Message →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="flogo">Surya.</div>
+  <p>© 2025 · Digital Marketer · Bangalore, India</p>
+  <div class="flinks">
+    <a href="#hero">Top</a>
+    <a href="#case-studies">Work</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cring');
+  let mx=0, my=0, rx=0, ry=0;
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    cursor.style.left=mx-6+'px'; cursor.style.top=my-6+'px';
+  });
+  (function animR(){ rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12; ring.style.left=rx-20+'px'; ring.style.top=ry-20+'px'; requestAnimationFrame(animR); })();
+  document.querySelectorAll('a,button,.exp-card,.case-card,.stool').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ cursor.style.transform='scale(2.5)'; ring.style.transform='scale(1.5)'; });
+    el.addEventListener('mouseleave',()=>{ cursor.style.transform='scale(1)'; ring.style.transform='scale(1)'; });
+  });
+  window.addEventListener('scroll',()=>{ document.getElementById('navbar').classList.toggle('scrolled',scrollY>60); });
+  const ro=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting)e.target.classList.add('visible'); }),{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+  window.addEventListener('scroll',()=>{
+    document.querySelectorAll('[data-speed]').forEach(el=>{
+      el.style.transform=`translateY(${scrollY*(+el.dataset.speed)}px)`;
+    });
+  });
+</script>
+</body>
+</html>
